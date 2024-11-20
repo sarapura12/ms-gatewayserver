@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -47,7 +48,7 @@ public class JwtAuthenticationFilter implements GatewayFilter {
                         return true;
                     })
                     .subscribeOn(Schedulers.boundedElastic())
-                    .onErrorResume(e -> onError(exchange).then(Mono.empty()))
+                    .onErrorResume(e -> Mono.error(new ResponseStatusException(HttpStatus.UNAUTHORIZED)))
                     .then(chain.filter(exchange));
         }
         return chain.filter(exchange);
